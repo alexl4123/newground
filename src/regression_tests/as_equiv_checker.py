@@ -231,7 +231,7 @@ class EquivChecker:
 
             debug_mode = False
 
-            enable_lpopt = True
+            enable_lpopt = False
             enable_logging = True
 
             current_datetime = datetime.now()
@@ -244,7 +244,7 @@ class EquivChecker:
                     heuristic_strategy, treewidth_strategy, grounding_strategy,
                     debug_mode, enable_lpopt, output_printer = custom_printer,
                     enable_logging=enable_logging, logging_file=log_file_name,
-                    output_type=output_type
+                    output_type=output_type, sota_grounder_path="./gringo"
                 )
                 heuristic_splitter.start(total_content)
 
@@ -255,7 +255,7 @@ class EquivChecker:
                     heuristic_strategy, treewidth_strategy, grounding_strategy,
                     debug_mode, enable_lpopt, output_printer = custom_printer,
                     enable_logging=enable_logging, logging_file=log_file_name,
-                    output_type=output_type
+                    output_type=output_type, sota_grounder_path="./gringo"
                 )
                 heuristic_splitter.start(heur_split_content)
             
