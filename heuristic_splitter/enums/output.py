@@ -7,5 +7,4 @@ class Output(Enum):
     """
 
     DEFAULT_GROUNDER = 1
-    STRING = 2
-    BENCHMARK = 3
+    BENCHMARK = 2

@@ -146,7 +146,7 @@ class GroundingStrategyHandler:
                 else:
                     final_string = self.start_sota_grounder(program_input, mode="standard")
 
-            elif self.output_type == Output.STRING:
+            elif False: # self.output_type == Output.STRING:
                 final_string = self.start_sota_grounder(program_input, mode="smodels")
                 self.grounded_program = SmodelsASPProgram(self.grd_call)
                 self.grounded_program.preprocess_smodels_program(final_string, domain_transformer)
@@ -160,7 +160,7 @@ class GroundingStrategyHandler:
         if self.debug_mode is True:
             print("--- FINAL ---") 
 
-        if self.output_type == Output.STRING:
+        if False: # self.output_type == Output.STRING:
             query_statement = ""
             if len(self.query.keys()) > 0:
                 query_statement = list(self.query.keys())[0]
@@ -587,9 +587,9 @@ class GroundingStrategyHandler:
 
             level_index += 1
 
-        if self.output_type != Output.STRING:
-            del domain_transformer.domain_dictionary
-            domain_transformer = None
+        #if self.output_type != Output.STRING:
+        #    del domain_transformer.domain_dictionary
+        #    domain_transformer = None
 
         return domain_transformer
         
@@ -606,7 +606,7 @@ class GroundingStrategyHandler:
 
 
         if grounding_strategy_enum == GroundingStrategy.FULL:
-            if self.output_type == Output.STRING:
+            if False: # self.output_type == Output.STRING:
 
                 query_statement = ""
                 if len(self.query.keys()) > 0:

@@ -81,10 +81,6 @@ def main():
             "cmd_line": "standard-grounder",
             "enum_mode": Output.DEFAULT_GROUNDER
             },
-        "STRING": {
-            "cmd_line": "string",
-            "enum_mode": Output.STRING,
-        },
         "BENCHMARK": {
             "cmd_line": "benchmark",
             "enum_mode": Output.BENCHMARK,
