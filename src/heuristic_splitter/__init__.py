@@ -139,6 +139,9 @@ def main():
         help="Decide which state-of-the-art (SOTA) grounder to use ('./gringo' or './idlv.bin' must be present in same directory)."
     )
 
+    parser.add_argument("--sota-grounder-path", default="./",
+        help="Specify path for a SOTA grounder executable (e.g., ./gringo).")
+
     parser.add_argument(
         "--output-type",
         default=output_type["STANDARD_GROUNDER"]["cmd_line"],
@@ -209,6 +212,7 @@ def main():
         help="Decide which BDG version to use - heuristic decides the smalles grounding size automatically, "+\
             "SATURATION prefers FastFound, and GUESS prefers the standard foundedness check."
     )
+    
 
     # -------------------
     # IF ENABLE DIFFERENT HEURISTICS:
@@ -265,6 +269,7 @@ def main():
     debug_mode = args.debug
     enable_lpopt = args.tw_aware
     relevancy_mode = args.relevancy_mode
+    sota_grounder_path = args.sota_grounder_path
 
     files = args.files
 
@@ -292,7 +297,11 @@ def main():
     else:
         log_file_path = None
 
-
+    if sota_grounder_path == "./":
+        if sota_grounder_used == SotaGrounder.GRINGO:
+            sota_grounder_path = "./gringo"
+        else:
+            sota_grounder_path = "./idlv.bin"
 
     start_time = time.time()
     heuristic = HeuristicSplitter(
@@ -307,7 +316,8 @@ def main():
         output_type = output_type_used,
         cyclic_strategy_used = cyclic_strategy_used,
         foundedness_strategy_used = foundedness_strategy_used,
-        relevancy_mode = relevancy_mode
+        relevancy_mode = relevancy_mode,
+        sota_grounder_path = sota_grounder_path
     )
 
     heuristic.start(contents)

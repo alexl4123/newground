@@ -54,7 +54,8 @@ class HeuristicSplitter:
         output_type = Output.DEFAULT_GROUNDER,
         cyclic_strategy_used = CyclicStrategy.USE_SOTA,
         foundedness_strategy_used = FoundednessStrategy.HEURISTIC,
-        relevancy_mode = False
+        relevancy_mode = False,
+        sota_grounder_path = "./"
         ):
 
         self.heuristic_strategy = heuristic_strategy
@@ -62,6 +63,7 @@ class HeuristicSplitter:
         self.grounding_strategy = grounding_strategy
         self.foundedness_strategy_used = foundedness_strategy_used
         self.relevancy_mode = relevancy_mode
+        self.sota_grounder_path = sota_grounder_path
 
         self.sota_grounder = sota_grounder_used
 
@@ -108,7 +110,6 @@ class HeuristicSplitter:
 
         self.program_ds = ProgramDS()
 
-    #@profile
     def start(self, contents):
 
         virtual_file = io.BytesIO(contents.encode("utf-8"))
@@ -212,6 +213,7 @@ class HeuristicSplitter:
 
 
             if self.ground_and_solve is True:
+                # For Lazy-BDG:
                 # Go through all SCCs
                 # See if there is any non-trivial, where BDG might be used
                 # If so --> Apply rewritings!
@@ -358,7 +360,8 @@ class HeuristicSplitter:
                     enable_logging = self.enable_logging, logging_class = self.logging_class,
                     output_type = self.output_type, cdnl_data_structure=self.cdnl_data_structure,
                     ground_and_solve=self.ground_and_solve, cyclic_strategy_used=self.cyclic_strategy_used,
-                    foundedness_strategy_used = self.foundedness_strategy_used,)
+                    foundedness_strategy_used = self.foundedness_strategy_used,
+                    sota_grounder_path = self.sota_grounder_path)
                 if len(grounding_strategy) > 1 or len(grounding_strategy[0]["bdg"]) > 0:
                     if self.enable_logging is True:
                         self.logging_class.is_single_ground_call = False

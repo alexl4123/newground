@@ -83,6 +83,7 @@ class GroundingStrategyHandler:
         output_printer = None, enable_logging = False, logging_class: LoggingClass = None,
         output_type: Output = None, cdnl_data_structure: CDNLDataStructure = None, ground_and_solve=False,
         cyclic_strategy_used=CyclicStrategy.USE_SOTA, foundedness_strategy_used = FoundednessStrategy.HEURISTIC,
+        sota_grounder_path = "./"
         ):
 
         self.grounding_strategy = grounding_strategy
@@ -92,6 +93,7 @@ class GroundingStrategyHandler:
         self.ground_and_solve = ground_and_solve
         self.cyclic_strategy_used = cyclic_strategy_used
         self.foundedness_strategy_used = foundedness_strategy_used
+        self.sota_grounder_path = sota_grounder_path
 
         self.output_type = output_type
         
@@ -742,7 +744,7 @@ class GroundingStrategyHandler:
             else:
                 raise NotImplementedError(f"[ERROR] - Mode for grounder (internally) not supported: {mode}")
 
-            arguments = ["./gringo", output]
+            arguments = [self.sota_grounder_path, output]
 
         elif self.sota_grounder == SotaGrounder.IDLV:
 
@@ -751,7 +753,7 @@ class GroundingStrategyHandler:
             else:
                 raise NotImplementedError(f"[ERROR] - Mode for grounder (internally) not supported: {mode}")
 
-            arguments = ["./idlv.bin", output, "--stdin"]
+            arguments = [self.sota_grounder_path, output, "--stdin"]
 
         else:
             raise NotImplementedError(f"Grounder {grounder} not implemented!")
