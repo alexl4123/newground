@@ -1,0 +1,8 @@
+include Makefile
+include requirements.txt
+recursive-include heuristic_splitter *.py *.c *.h *.so
+recursive-include heuristic_splitter/program *.so
+recursive-include cython_nagg *.py *.c *.h *.so
+recursive-include nagg *.py *.c *.h *.so
+
+

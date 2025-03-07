@@ -1,0 +1,49 @@
+{% set name = "newground" %}
+{% set version = "3.0.8" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/newground-{{ version }}.tar.gz
+  sha256: d9a37a87f92ef24ac15b1ef8c2fbdc9bd2813d070aa65db87580fdd7bd6b4a32
+
+build:
+  entry_points:
+    - newground=heuristic_splitter:main
+  noarch: python
+  number: 0
+
+requirements:
+  host:
+    - python ==3.12
+    - pip
+    - setuptools
+    - wheel
+    - cython
+    - networkx
+    - clingo
+  run:
+    - python ==3.12
+    - networkx
+    - clingo
+
+test:
+  imports:
+    - cython_nagg
+    - heuristic_splitter
+    - nagg
+  commands:
+    - pip check
+    - newground --help
+  requires:
+    - pip
+
+about:
+  license: 'MIT License'
+  license_file: LICENSE.md
+
+extra:
+  recipe-maintainers:
+    - thinklex

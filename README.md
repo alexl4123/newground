@@ -1,9 +1,63 @@
 # Newground 3 (Heuristic Splitter)
 
+# Installation
+
+We provide an anaconda and a pypi package, which works for Unix with Python version 3.12.
+This is the easiest way to install newground (we suppose that `conda` is already installed):
+```
+conda create -n newground-test-arena thinklex::newground
+conda activate newground-test-arena
+```
+
+## Running a first file:
+
+```
+mkdir newground_test
+cd newground_test
+ln -s $(whereis gringo | cut -d ' ' -f2) ./gringo
+```
+
+Then create the `test3.lp` file:
+```
+a(1).
+b(X) :- a(X).
+```
+
+By using `newground test3.lp` the output should be:
+```
+asp 1 0 0
+1 0 1 1 0 0
+1 0 1 2 0 0
+4 4 a(1) 0
+4 4 b(1) 0
+0
+```
+
+## Compile from scratch
+
+1. Clone the repository
+2. Goto the src folder
+3. Hit `python -m build`
+4. Then `pip install .`
+
+If this does not work, try:
+```
+python start_heuristic_splitter.py
+```
+
+If this does not work as well you probably need to compile the Cython and C code by hand:
+```
+make compile-heuristic-cython-c
+make compile-nagg-cython
+```
+After that using `python start_heuristic_splitter.py` should work.
+
 # Newground3: Advanced Grounding for ASP
 
 **Prototype Status:**  
-Newground3 is a prototype developed as part of a Master's Thesis. It demonstrates new techniques for grounding in Answer Set Programming (ASP). It is mainly intended for research and testing purposes.
+Newground3 is a prototype developed for alleviating the grounding bottleneck.
+It demonstrates new techniques for grounding in Answer Set Programming (ASP).
+It is mainly intended for research and testing purposes.
 Currently, it works only on Linux systems and may not be fully reliable or polished for other operating systems or production use.
 
 If you don't manage to get it working please open an issue, or write me (alexander.beiser@tuwien.ac.at) an email!
@@ -59,40 +113,17 @@ options:
 
 ---
 
-## Dependencies
-
-- conda
-- Tested with Python 3.12.1
-    - Likely that newer and slightly older versions will also work
-- SOTA Grounders:
-    - `gringo`
-    - `idlv.bin`
-    - Locally available in this folder (`newground/gringo`, `newground/idlv.bin`)
-- Requirements (python):
-    - `environment.yml`
-
-```
-conda env create -f environment.yml
-conda activate newground3
-```
-
----
-
-## Installation
-
-1. Install the `environment.yml` file
-2. Use the `compile_all.sh` script for the cython compilation. If errors occur we advise you to manually copy the cython build files to the destinations.
-
-
 ## Examples
 
 We provide you with two very small example files: `test.lp` and `test_2.lp`, and the respective output in `test_output.lp` and `test_2_output.lp`:
 
 ```
-python start_heuristic_splitter.py --grounding-strategy=non-ground-rewrite test.lp > test_output.lp
+newground --grounding-strategy=non-ground-rewrite test.lp
 ```
+
+
 ```
-python start_heuristic_splitter.py --grounding-strategy=non-ground-rewrite test_2.lp > test_2_output.lp
+newground --grounding-strategy=non-ground-rewrite test_2.lp
 ```
 
 
@@ -105,14 +136,26 @@ python start_heuristic_splitter.py --grounding-strategy=non-ground-rewrite test_
 
 ---
 
-## Acknowledgments
 
-I developed this software as part of my Master's Thesis, see [thesis](https://beiser.eu) for details.
+# Acknowledgements
 
-# Earlier Versions: Newground and NaGG
+## Relevant Papers
+
+1. V. Besin, M. Hecher, and S. Woltran, “Body-decoupled grounding via solving: A novel approach on the ASP bottleneck”, in IJCAI22, 2022, pp. 2546–2552. DOI: 10.24963/ijcai.2022/353.
+2.  A. G. Beiser, M. Hecher, K. Unalan, and S. Woltran, “Bypassing the ASP bottleneck: Hybrid grounding by splitting and rewriting”, in IJCAI24, 2024, pp. 3250–3258. DOI: 10.24963/ijcai.2024/360.
+
+## Relevant Theses
+
+1. V. Besin, “A novel method for grounding in answer-set programming”, Master’s Thesis,
+TUWien, 2023.
+2. K. Unalan, “Body-decoupled grounding in normal answer set programs”, Bachelor’s
+Thesis, TUWien, 2022.
+3. A. G. Beiser, “Body-decoupled Grounding for Answer Set Programming extended with
+Aggregates”, Bachelor’s Thesis, TUWien, 2023.
+4. A. G. Beiser, "Novel Techniques for Circumventing the ASP Bottleneck", Master's Thesis, TUWien, 2025.
+
+## Earlier Versions
 
 NaGG is a specialized version of [Newground](https://github.com/alexl4123/newground).
-For details and general information see the [documentation](https://www.dbai.tuwien.ac.at/proj/hypar/newground/index.html) page of Newground,
-or the respective documentation folder.
-
+For details and general information about the earlier prototype see the [documentation](https://www.dbai.tuwien.ac.at/proj/hypar/newground/index.html) page of Newground, or the respective documentation folder.
 

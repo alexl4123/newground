@@ -1,7 +1,7 @@
 from heuristic_splitter import main
 import sys
 
-from memory_profiler import profile
+#from memory_profiler import profile
 
 #@profile
 def start_func():

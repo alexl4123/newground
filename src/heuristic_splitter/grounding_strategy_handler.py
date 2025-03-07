@@ -57,7 +57,7 @@ from heuristic_splitter.logging_class import LoggingClass
 from heuristic_splitter.cdnl.cdnl_data_structure import CDNLDataStructure
 
 from ctypes import *
-so_file = "./heuristic_splitter/c_output_redirector.so"
+so_filename = "c_output_redirector.so"
 
 # C-Struct (return value)
 class PipeFds(Structure):
@@ -177,6 +177,8 @@ class GroundingStrategyHandler:
     def ground(self):
 
         # Load c_output_redirector
+        base_dir = os.path.dirname(__file__)  # Get the directory of the current script
+        so_file = os.path.join(base_dir, so_filename)
         c_output_redirector = CDLL(so_file)
         # Set the return type of open_pipe to our struct
         c_output_redirector.open_pipe.restype = PipeFds
@@ -473,7 +475,7 @@ class GroundingStrategyHandler:
                                         continue
 
                                     new_rule_body.append(str(literal["FUNCTION"]))
-                                    new_prec = f"prec({str(literal["FUNCTION"])},{str(tmp_head_literal)})"
+                                    new_prec = f"prec({str(literal['FUNCTION'])},{str(tmp_head_literal)})"
                                     new_lits.append(new_prec)
 
                                 new_rule_1 = str(tmp_head_literal) + ":-" + ",".join(new_rule_body) + "," + ",".join(new_lits) + "."

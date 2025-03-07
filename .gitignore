@@ -7,3 +7,4 @@ heuristic_splitter/*.so
 heuristic_splitter/*.c
 heuristic_splitter/build
 build
+src/logs
