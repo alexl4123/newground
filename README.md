@@ -156,6 +156,9 @@ Aggregates”, Bachelor’s Thesis, TUWien, 2023.
 
 ## Earlier Versions
 
+Newground (version 1) was the original version, followed by NaGG.
+These prototypes can be downloaded from the branches `ijcai22` and `ijcai24-NaGG`.
 NaGG is a specialized version of [Newground](https://github.com/alexl4123/newground).
 For details and general information about the earlier prototype see the [documentation](https://www.dbai.tuwien.ac.at/proj/hypar/newground/index.html) page of Newground, or the respective documentation folder.
+Also check out [Newground](https://github.com/viktorbesin/newground).
 
