@@ -3,9 +3,15 @@
 # Installation
 
 We provide an anaconda and a pypi package, which works for Unix with Python version 3.12.
-This is the easiest way to install newground (we suppose that `conda` is already installed):
+This is the easiest way to install newground (we presuppose that `conda` is already installed):
 ```
 conda create -n newground-test-arena thinklex::newground
+conda activate newground-test-arena
+```
+
+Sometimes conda requires you to specify the conda-forge channel for clingo, then try the following:
+```
+conda create -n newground-test-arena -c conda-forge clingo thinklex::newground
 conda activate newground-test-arena
 ```
 
