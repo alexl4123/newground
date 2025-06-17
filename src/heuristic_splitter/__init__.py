@@ -151,6 +151,12 @@ def main():
         ],
         help="For the full grounder output in specific format."
     )
+ 
+    parser.add_argument(
+        "--version",
+        action="version",
+        version='3.0.0',
+    )
 
 
     parser.add_argument(
