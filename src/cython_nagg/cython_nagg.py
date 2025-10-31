@@ -63,6 +63,10 @@ class CythonNagg:
         for rule in rules:
 
             variable_domain, head_variables, variable_domain_including_sub_functions = self.get_variable_domain(rule, self.domain.domain_dictionary)
+            
+            for variable_key in variable_domain.keys():
+                variable_domain[variable_key] = sorted(variable_domain[variable_key])
+
 
             satisfiability.generate_satisfiability_part(rule, variable_domain, rule_number)
 
@@ -103,6 +107,7 @@ class CythonNagg:
 
         printf_(sat_constraint.encode("ascii"))
         printf_(sat_rule.encode("ascii"))
+        
 
         if len(just_atom_rules_list) > 0: # and (implicit) justifiability_type == "SATURATION"
             just_constraint = ":- not " + justifiability.just_atom_string.format(nagg_call_number=self.nagg_call_number) + "."
