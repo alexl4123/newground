@@ -380,6 +380,10 @@ class GraphCreatorTransformer(Transformer):
 
     
     def visit_Definition(self, node):
+
+        self.rule_dictionary[self.current_rule_position] = Rule(node, self.rules_as_strings[self.current_rule_position])
+        self.current_rule_position += 1
+
         if self.debug_mode is True:
             print(f"Definition: {str(node)}")
         self.visit_children(node)

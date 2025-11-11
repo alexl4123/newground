@@ -166,6 +166,10 @@ class HeuristicSplitter:
                 self.debug_mode, rule_dictionary, self.program_ds)
             parse_string(other_rules_string, lambda stm: heuristic_transformer(stm))
 
+
+            #############################
+            # LPOPT
+            #############################
             if self.enable_lpopt is True and self.sota_grounder == SotaGrounder.GRINGO and len(list(facts_heads.values())) > 0:
                 # Check if Lpopt use is useful:
                 # If so, (lpopt_used is True), then overwrite most of the other variables:
@@ -212,6 +216,9 @@ class HeuristicSplitter:
                     lpopt_rules.clear()
 
 
+            #############################
+            # GROUND AND SOLVE (LAZY BDG)
+            #############################
             if self.ground_and_solve is True:
                 # For Lazy-BDG:
                 # Go through all SCCs

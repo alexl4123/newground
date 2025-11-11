@@ -127,6 +127,7 @@ class HeuristicTransformer(Transformer):
             old = getattr(node, "body")
             self._dispatch(old)
             self.in_body = False
+        
 
         try:
             rule_object = self.rule_dictionary[self.current_rule_position]
@@ -523,5 +524,15 @@ class HeuristicTransformer(Transformer):
         self.visit_children(node)
         self.in_unary_operation = False
 
+        return node
+
+    def visit_Definition(self, node):
+
+        self.sota_rules[self.current_rule_position] = True
+        self.current_rule_position += 1
+
+        if self.debug_mode is True:
+            print(f"Definition: {str(node)}")
+        self.visit_children(node)
         return node
 
