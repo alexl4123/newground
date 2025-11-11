@@ -218,6 +218,12 @@ def main():
         help="Decide which BDG version to use - heuristic decides the smalles grounding size automatically, "+\
             "SATURATION prefers FastFound, and GUESS prefers the standard foundedness check."
     )
+
+    parser.add_argument(
+        "--lpopt-path",
+        default="./lpopt.bin",
+        help="Specify the path to the Lpopt executable."
+    )
     
 
     # -------------------
@@ -323,7 +329,8 @@ def main():
         cyclic_strategy_used = cyclic_strategy_used,
         foundedness_strategy_used = foundedness_strategy_used,
         relevancy_mode = relevancy_mode,
-        sota_grounder_path = sota_grounder_path
+        sota_grounder_path = sota_grounder_path,
+        custom_lpopt_path=args.lpopt_path,
     )
 
     heuristic.start(contents)

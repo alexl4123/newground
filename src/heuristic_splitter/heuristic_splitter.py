@@ -55,8 +55,11 @@ class HeuristicSplitter:
         cyclic_strategy_used = CyclicStrategy.USE_SOTA,
         foundedness_strategy_used = FoundednessStrategy.HEURISTIC,
         relevancy_mode = False,
-        sota_grounder_path = "./"
+        sota_grounder_path = "./",
+        custom_lpopt_path="./lpopt.bin",
         ):
+
+        self.custom_lpopt_path = custom_lpopt_path
 
         self.heuristic_strategy = heuristic_strategy
         self.treewidth_strategy = treewidth_strategy
@@ -192,7 +195,8 @@ class HeuristicSplitter:
                         stratified_rules, lpopt_rules, constraint_rules, other_rules,
                         other_rules_string, rule_dictionary, graph_ds, facts_heads,
                         alternative_global_tuples, alternative_global_number_terms,
-                        alternative_adjusted_tuples)
+                        alternative_adjusted_tuples,
+                        custom_lpopt_path=self.custom_lpopt_path)
 
                 if lpopt_used is True:
 
@@ -426,6 +430,7 @@ class HeuristicSplitter:
         rule_dictionary, graph_ds, facts_heads,
         alternative_global_tuples, alternative_global_number_terms,
         alternative_adjusted_tuples,
+        custom_lpopt_path,
         ):
 
 
@@ -444,7 +449,7 @@ class HeuristicSplitter:
         for lpopt_rule in lpopt_rules:
 
             lpopt_non_rewritten_rules_string = str(rule_dictionary[lpopt_rule])
-            lpopt_rewritten_rules_string = self.start_lpopt(lpopt_non_rewritten_rules_string)
+            lpopt_rewritten_rules_string = self.start_lpopt(lpopt_non_rewritten_rules_string, lpopt_path=custom_lpopt_path)
 
             lpopt_graph_ds = GraphDataStructure()
             lpopt_rule_dictionary = {}
@@ -558,9 +563,9 @@ class HeuristicSplitter:
 
 
 
-    def start_lpopt(self, program_input, timeout=1800):
+    def start_lpopt(self, program_input, timeout=1800, lpopt_path= "./lpopt.bin"):
 
-        program_string = "./lpopt.bin"
+        program_string = lpopt_path
 
         if not os.path.isfile(program_string):
             print("[ERROR] - For treewidth aware decomposition 'lpopt.bin' is required (current directory).")
@@ -569,6 +574,10 @@ class HeuristicSplitter:
         seed = 11904657
         call_string = f"{program_string} -s {seed}"
         #arguments = [program_string]
+        #print(timeout) 
+        #print(">>>>>>>")
+        #print(program_input)
+        #print("<<<<<<<<<")
 
         decoded_string = ""
         try:
@@ -579,9 +588,9 @@ class HeuristicSplitter:
             error_vals_decoded = error_vals_encoded.decode()
 
             if p.returncode != 0:
-                print(f">>>>> Other return code than 0 in helper: {p.returncode}")
-                print(decoded_string)
-                print(error_vals_decoded)
+                #print(f">>>>> Other return code than 0 in helper: {p.returncode}")
+                #print(decoded_string)
+                #print(error_vals_decoded)
                 raise Exception(error_vals_decoded)
 
         except Exception as ex:
@@ -590,9 +599,7 @@ class HeuristicSplitter:
             except Exception as e:
                 pass
 
-            print(ex)
-
-            raise NotImplementedError() # TBD: Continue if possible
+            decoded_string = program_input
 
         return decoded_string
 
