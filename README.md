@@ -104,6 +104,7 @@ options:
                         Decide which state-of-the-art (SOTA) grounder to use ('./gringo' or './idlv.bin' must be present in same directory).
   --output-type {standard-grounder,string,benchmark}
                         For the full grounder output in specific format.
+  --version             show program's version number and exit
   --debug               Print debug information.
   --enable-logging      Enable additional logging information, e.g., if BDG was used.
   --logging-file LOGGING_FILE
@@ -139,6 +140,7 @@ newground --grounding-strategy=non-ground-rewrite test_2.lp
 
 - **Linux Only:** This prototype has been tested only on Linux and may not work on other systems.
 - **Prototype Status:** The software is experimental and not ready for production.
+- **Input Language:** The input language is (only) the ASP-Core-2 language (doi:10.1017/S1471068419000450)
 
 ---
 
@@ -148,7 +150,9 @@ newground --grounding-strategy=non-ground-rewrite test_2.lp
 ## Relevant Papers
 
 1. V. Besin, M. Hecher, and S. Woltran, “Body-decoupled grounding via solving: A novel approach on the ASP bottleneck”, in IJCAI22, 2022, pp. 2546–2552. DOI: 10.24963/ijcai.2022/353.
-2.  A. G. Beiser, M. Hecher, K. Unalan, and S. Woltran, “Bypassing the ASP bottleneck: Hybrid grounding by splitting and rewriting”, in IJCAI24, 2024, pp. 3250–3258. DOI: 10.24963/ijcai.2024/360.
+2.  A. Beiser, M. Hecher, K. Unalan, and S. Woltran, “Bypassing the ASP bottleneck: Hybrid grounding by splitting and rewriting”, in IJCAI24, 2024, pp. 3250–3258. DOI: 10.24963/ijcai.2024/360.
+3. A. Beiser, M. Hecher, S. Woltran, "Automated Hybrid Grounding Using Structural and Data-Driven Heuristics", in ICLP25, 2025, DOI: 10.1017/S1471068425100173
+4. A. Beiser, M. Gebser, M. Hecher, S. Woltran, "FastFound: Easing the ASP Bottleneck via Predicate-Decoupled Grounding", in KR25, 2025, DOI: 10.24963/kr.2025/10
 
 ## Relevant Theses
 
@@ -156,9 +160,9 @@ newground --grounding-strategy=non-ground-rewrite test_2.lp
 TUWien, 2023.
 2. K. Unalan, “Body-decoupled grounding in normal answer set programs”, Bachelor’s
 Thesis, TUWien, 2022.
-3. A. G. Beiser, “Body-decoupled Grounding for Answer Set Programming extended with
+3. A. Beiser, “Body-decoupled Grounding for Answer Set Programming extended with
 Aggregates”, Bachelor’s Thesis, TUWien, 2023.
-4. A. G. Beiser, "Novel Techniques for Circumventing the ASP Bottleneck", Master's Thesis, TUWien, 2025.
+4. A. Beiser, "Novel Techniques for Circumventing the ASP Bottleneck", Master's Thesis, TUWien, 2025.
 
 ## Earlier Versions
 
