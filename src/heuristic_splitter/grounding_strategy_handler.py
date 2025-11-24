@@ -318,7 +318,7 @@ class GroundingStrategyHandler:
                     finally:
                         os.remove(path)
 
-                    if self.enable_logging is True:
+                    if self.debug_mode is True:
                         print(f"---> TIME DURATION CYTHON NAGG NEW: {end_time - start_time}", file=sys.stderr)
 
                     self.total_nagg_calls += 1
