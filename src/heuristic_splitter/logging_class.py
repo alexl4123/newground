@@ -29,7 +29,7 @@ class LoggingClass:
 
         self.logging_file.write(f"--Lpopt-Used:{self.is_lpopt_used}\n")
         self.logging_file.write(f"--BDG-Used:{self.is_bdg_used}\n")
-        self.logging_file.write(f"--BDG-New-Used:{self.is_bdg_new_used}\n")
+        self.logging_file.write(f"--FastFound-Used:{self.is_bdg_new_used}\n")
         self.logging_file.write(f"--BDG-Old-Used:{self.is_bdg_old_used}\n")
         self.logging_file.write(f"--Is-Single-Ground-Call:{self.is_single_ground_call}")
         self.logging_file.write("\n------------------------------------\n")
@@ -45,7 +45,7 @@ class LoggingClass:
         self.logging_file.write("====================================\n")
         self.logging_file.write(self.sota_used_for_rules)
         self.logging_file.write("\n------------------------------------\n")
-        self.logging_file.write(f"New-BDG-Is-Used-For-Rules:\n")
+        self.logging_file.write(f"FastFound-Is-Used-For-Rules:\n")
         self.logging_file.write("====================================\n")
         self.logging_file.write(self.bdg_new_used_for_rules)
         self.logging_file.write("\n------------------------------------\n")

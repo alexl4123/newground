@@ -112,7 +112,7 @@ def main():
             "enum_mode": FoundednessStrategy.GUESS,
         },
         "SATURATION": {
-            "cmd_line": "saturation",
+            "cmd_line": "fastfound",
             "enum_mode": FoundednessStrategy.SATURATION,
         },
     }
