@@ -24,6 +24,9 @@ class Rule:
         self.in_lpopt_rules = False
 
         self.tw_effective = -1
+        self.max_variables_in_literal = -1
+        self.max_variables_in_head = 0
+        self.max_variables_in_body = 0
 
         self.literals = []
 

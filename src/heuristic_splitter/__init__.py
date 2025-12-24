@@ -18,7 +18,7 @@ from heuristic_splitter.enums.treewidth_computation_strategy import TreewidthCom
 from heuristic_splitter.enums.output import Output
 from heuristic_splitter.enums.cyclic_strategy import CyclicStrategy
 from heuristic_splitter.enums.foundedness_strategy import FoundednessStrategy
-
+from heuristic_splitter.enums.heuristic_algorithm import HeuristicAlgorithm
 
 def main():
     """
@@ -117,6 +117,17 @@ def main():
         },
     }
 
+    heuristic_strategies = {
+        "DATASTRUCTURE": {
+            "cmd_line": "datastructure",
+            "enum_mode": HeuristicAlgorithm.DATASTRUCTURE
+        },
+        "STRUCTURE": {
+            "cmd_line":"structure",
+            "enum_mode": HeuristicAlgorithm.STRUCTURE
+        }
+    }
+
     parser = argparse.ArgumentParser(prog="Newground3", usage="%(prog)s [files]")
 
     parser.add_argument(
@@ -155,7 +166,7 @@ def main():
     parser.add_argument(
         "--version",
         action="version",
-        version='3.0.0',
+        version='3.0.1',
     )
 
 
@@ -224,7 +235,17 @@ def main():
         default="./lpopt.bin",
         help="Specify the path to the Lpopt executable."
     )
-    
+
+
+    parser.add_argument(
+        "--heuristic-algorithm",
+        default=heuristic_strategies["DATASTRUCTURE"]["cmd_line"],
+        choices=[
+            heuristic_strategies[key]["cmd_line"]
+            for key in heuristic_strategies.keys()
+        ],
+        help="Decide which Heuristic Algorithm to use - only structural or data-structural. "
+    )
 
     # -------------------
     # IF ENABLE DIFFERENT HEURISTICS:
@@ -277,6 +298,11 @@ def main():
     for key in foundedness_strategies.keys():
         if args.foundedness_strategy == foundedness_strategies[key]["cmd_line"]:
             foundedness_strategy_used = foundedness_strategies[key]["enum_mode"]
+
+    heuristic_strategy_used = None
+    for key in heuristic_strategies.keys():
+        if args.heuristic_algorithm == heuristic_strategies[key]["cmd_line"]:
+            heuristic_strategy_used = heuristic_strategies[key]["enum_mode"]
 
     debug_mode = args.debug
     enable_lpopt = args.tw_aware
@@ -331,6 +357,7 @@ def main():
         relevancy_mode = relevancy_mode,
         sota_grounder_path = sota_grounder_path,
         custom_lpopt_path=args.lpopt_path,
+        heuristic_strategy_used=heuristic_strategy_used,
     )
 
     heuristic.start(contents)

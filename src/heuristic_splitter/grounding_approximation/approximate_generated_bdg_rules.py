@@ -163,8 +163,25 @@ class ApproximateGeneratedBDGRules:
                 for head_variable in head_variables:
                     if self.rule.variable_no_head_graph.is_reachable_variables(head_variable, function_variable) is True:
                         if head_variable not in considered_head_variables:
-                            old_function_tuples *= variable_domain_sizes[head_variable]
-                            considered_head_variables[head_variable] = True
+                            if head_variable in variable_domain_sizes:
+                                old_function_tuples *= variable_domain_sizes[head_variable]
+                                considered_head_variables[head_variable] = True
+                            else:
+                                max_var = None
+                                max_val = None
+                                for key,val in variable_domain_sizes.items():
 
+                                    if max_var is None:
+                                        max_var = key
+                                        max_val = val
+                                    elif max_val < val:
+                                        max_var = key
+                                        max_val = val
+
+                                old_function_tuples *= variable_domain_sizes[max_var]
+                                considered_head_variables[max_var] = True
+
+                                variable_domain_sizes[head_variable] = max_val
+                                
             self.found_new_rules += new_function_tuples
             self.found_old_rules += old_function_tuples

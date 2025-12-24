@@ -14,7 +14,11 @@ class Heuristic0(HeuristicInterface):
             variable_graph : VariableGraphDataStructure, stratified_variables,
             graph_ds : GraphDataStructure,
             head_atoms_scc_membership, body_atoms_scc_membership,
-            maximum_variables_in_literal, is_constraint,
+            maximum_variables_in_literal,
+            maximum_variables_in_head,
+            maximum_variables_in_body,
+            rule_has_arithmetics,
+            is_constraint,
             has_aggregate,
             rule_position,
             all_positive_function_variables,
@@ -32,7 +36,26 @@ class Heuristic0(HeuristicInterface):
 
         is_tight = len([True for head_key in head_atoms_scc_membership.keys() if head_key in body_atoms_scc_membership]) == 0
 
-        can_handle_rule = has_aggregate is False and in_minimize_statement is False and all_comparison_variables_safe_by_predicate is True
+        can_handle_rule = has_aggregate is False and in_minimize_statement is False and all_comparison_variables_safe_by_predicate is True and rule_has_arithmetics is False
+
+        # Stratified variables are not considered in the rewriting, as they are not grounded in SOTA grounders.
+        for stratified_variable in set(stratified_variables):
+            variable_graph.remove_variable(str(stratified_variable))
+        # The +1 comes from the number of variables (tw is max bag-size -1, so we need to add 1 again)
+        if self.treewidth_strategy == TreewidthComputationStrategy.NETWORKX_HEUR:
+            tw_effective = variable_graph.compute_networkx_bag_size()
+            tw_full = full_variable_graph.compute_networkx_bag_size()
+        elif self.treewidth_strategy == TreewidthComputationStrategy.TWALGOR_EXACT:
+            tw_effective = variable_graph.compute_twalgor_bag_size()
+            tw_full = full_variable_graph.compute_twalgor_bag_size()
+        else:
+            raise NotImplementedError()
+
+        # Add tw-effective
+        self.rule_dictionary[rule_position].tw_effective = tw_full
+        self.rule_dictionary[rule_position].max_variables_in_literal = maximum_variables_in_literal
+        self.rule_dictionary[rule_position].max_variables_in_head = maximum_variables_in_head
+        self.rule_dictionary[rule_position].max_variables_in_body = maximum_variables_in_body
 
         if self.rule_dictionary[rule_position].in_program_rules is True and can_handle_rule is True and body_is_stratified is False:
             # If user specifies grounded by BDG, then ground by BDG (if possible in theory)
@@ -57,34 +80,18 @@ class Heuristic0(HeuristicInterface):
         else:
             # A more complex decision is needed:
 
-            # Stratified variables are not considered in the rewriting, as they are not grounded in SOTA grounders.
-            for stratified_variable in set(stratified_variables):
-                variable_graph.remove_variable(str(stratified_variable))
-
-            # The +1 comes from the number of variables (tw is max bag-size -1, so we need to add 1 again)
-            if self.treewidth_strategy == TreewidthComputationStrategy.NETWORKX_HEUR:
-                tw_effective = variable_graph.compute_networkx_bag_size()
-                tw_full = full_variable_graph.compute_networkx_bag_size()
-            elif self.treewidth_strategy == TreewidthComputationStrategy.TWALGOR_EXACT:
-                tw_effective = variable_graph.compute_twalgor_bag_size()
-                tw_full = full_variable_graph.compute_twalgor_bag_size()
-            else:
-                raise NotImplementedError()
-
-            # Add tw-effective
-            self.rule_dictionary[rule_position].tw_effective = tw_full
             
 
-            if is_constraint is True and tw_effective > maximum_variables_in_literal and all_comparison_variables_safe_by_predicate is True:
+            if is_constraint is True and tw_effective > maximum_variables_in_literal and all_comparison_variables_safe_by_predicate is True and can_handle_rule is True:
                 # Constraint:
                 bdg_rules[rule_position] = True
 
-            elif is_tight is True and tw_effective > maximum_variables_in_literal * 1 and all_comparison_variables_safe_by_predicate is True:
+            elif is_tight is True and tw_effective > maximum_variables_in_literal * 1 and all_comparison_variables_safe_by_predicate is True and can_handle_rule is True:
                 # Tight normal:
                 # As in best case tw_effective > maximum_variables_in_literal (for foundedness encodings, although unlikely)
                 bdg_rules[rule_position] = True
             
-            elif is_tight is False and tw_effective > maximum_variables_in_literal * 1 and all_comparison_variables_safe_by_predicate is True:
+            elif is_tight is False and tw_effective > maximum_variables_in_literal * 1 and all_comparison_variables_safe_by_predicate is True and can_handle_rule is True:
                 # Non-tight normal:
                 bdg_rules[rule_position] = True
 

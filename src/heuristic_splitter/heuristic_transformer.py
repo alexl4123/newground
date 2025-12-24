@@ -46,6 +46,7 @@ class HeuristicTransformer(Transformer):
         self.body_is_stratified = True
 
         self.current_rule_position = 0
+        self.rule_has_arithmetics = False
 
         self.in_body = False
         self.in_head = False
@@ -136,11 +137,15 @@ class HeuristicTransformer(Transformer):
 
             # Better than arity:
             maximum_variables_in_literal = 0
+            maximum_variables_in_head = 0
+            maximum_variables_in_body = 0
 
             for literal in rule_object.literals:
+                in_head = False
                 if self.function_string in literal:
                     # FUNCTION
                     function = literal[self.function_string]
+                    in_head = literal[self.function_string].in_head
                     terms_domain = []
                 elif self.comparison_string in literal:
                     function = literal[self.comparison_string]
@@ -157,11 +162,21 @@ class HeuristicTransformer(Transformer):
                 if number_variables_in_literal > maximum_variables_in_literal:
                     maximum_variables_in_literal = number_variables_in_literal
 
+                if in_head is True and number_variables_in_literal > maximum_variables_in_head:
+                    maximum_variables_in_head = number_variables_in_literal
+
+                if in_head is False and number_variables_in_literal > maximum_variables_in_body:
+                    maximum_variables_in_body = number_variables_in_literal
+
             self.heuristic.handle_rule(
                 self.bdg_rules, self.sota_rules, self.stratified_rules, self.lpopt_rules,
                 self.variable_graph, self.stratified_variables, self.graph_ds,
                 self.head_atoms_scc_membership, self.body_atoms_scc_membership,
-                maximum_variables_in_literal, self.is_constraint,
+                maximum_variables_in_literal,
+                maximum_variables_in_head,
+                maximum_variables_in_body,
+                self.rule_has_arithmetics,
+                self.is_constraint,
                 self.has_aggregate,
                 self.current_rule_position,
                 self.all_positive_function_variables,
@@ -199,7 +214,11 @@ class HeuristicTransformer(Transformer):
             self.bdg_rules, self.sota_rules, self.stratified_rules, self.lpopt_rules,
             self.variable_graph, self.stratified_variables, self.graph_ds,
             self.head_atoms_scc_membership, self.body_atoms_scc_membership,
-            self.maximum_rule_arity, self.is_constraint,
+            self.maximum_rule_arity,
+            self.maximum_rule_arity, # makes no difference here
+            self.maximum_rule_arity, # makes no difference here
+            self.rule_has_arithmetics,
+            self.is_constraint,
             self.has_aggregate,
             self.current_rule_position,
             self.all_positive_function_variables,
@@ -506,6 +525,8 @@ class HeuristicTransformer(Transformer):
 
 
         self.binary_operation_stack.append(node)
+
+        self.rule_has_arithmetics = True
 
         if len(self.binary_operation_stack) == 1:
             self.in_binary_op_arity_added = False
