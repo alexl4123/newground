@@ -24,6 +24,7 @@ from heuristic_splitter.enums.sota_grounder import SotaGrounder
 from heuristic_splitter.enums.output import Output
 from heuristic_splitter.enums.cyclic_strategy import CyclicStrategy
 from heuristic_splitter.enums.foundedness_strategy import FoundednessStrategy
+from heuristic_splitter.enums.heuristic_algorithm import HeuristicAlgorithm
 
 from heuristic_splitter.heuristic_0 import Heuristic0
 
@@ -57,6 +58,7 @@ class HeuristicSplitter:
         relevancy_mode = False,
         sota_grounder_path = "./",
         custom_lpopt_path="./lpopt.bin",
+        heuristic_strategy_used=HeuristicAlgorithm.DATASTRUCTURE,
         ):
 
         self.custom_lpopt_path = custom_lpopt_path
@@ -65,6 +67,7 @@ class HeuristicSplitter:
         self.treewidth_strategy = treewidth_strategy
         self.grounding_strategy = grounding_strategy
         self.foundedness_strategy_used = foundedness_strategy_used
+        self.heuristic_strategy_used = heuristic_strategy_used
         self.relevancy_mode = relevancy_mode
         self.sota_grounder_path = sota_grounder_path
 
@@ -169,7 +172,6 @@ class HeuristicSplitter:
                 self.debug_mode, rule_dictionary, self.program_ds)
             parse_string(other_rules_string, lambda stm: heuristic_transformer(stm))
 
-
             #############################
             # LPOPT
             #############################
@@ -218,8 +220,7 @@ class HeuristicSplitter:
                         sota_rules[lpopt_rule] = True
 
                     lpopt_rules.clear()
-
-
+            
             #############################
             # GROUND AND SOLVE (LAZY BDG)
             #############################
@@ -372,6 +373,7 @@ class HeuristicSplitter:
                     output_type = self.output_type, cdnl_data_structure=self.cdnl_data_structure,
                     ground_and_solve=self.ground_and_solve, cyclic_strategy_used=self.cyclic_strategy_used,
                     foundedness_strategy_used = self.foundedness_strategy_used,
+                    heuristic_strategy_used = self.heuristic_strategy_used,
                     sota_grounder_path = self.sota_grounder_path)
                 if len(grounding_strategy) > 1 or len(grounding_strategy[0]["bdg"]) > 0:
                     if self.enable_logging is True:
@@ -382,7 +384,7 @@ class HeuristicSplitter:
                 else:
                     if self.enable_logging is True:
                         self.logging_class.is_single_ground_call = True
-
+                    
                     grounding_handler.single_ground_call(all_heads, self.grounding_strategy)
 
 
@@ -456,33 +458,38 @@ class HeuristicSplitter:
             graph_transformer = GraphCreatorTransformer(lpopt_graph_ds, lpopt_rule_dictionary, lpopt_rewritten_rules_string.split("\n"), self.debug_mode)
             parse_string(lpopt_rewritten_rules_string, lambda stm: graph_transformer(stm))
 
-            if rule_dictionary[lpopt_rule].in_lpopt_rules is False:
-                approximate_non_rewritten_rules = ApproximateGeneratedSotaRules(None, rule_dictionary[lpopt_rule],
-                    alternative_global_number_terms=alternative_global_number_terms,
-                    alternative_adjusted_tuples_per_arity=alternative_adjusted_tuples)
-                approximate_non_rewritten_rule_instantiations = approximate_non_rewritten_rules.approximate_sota_size()
-
-                approximate_rewritten_rule_instantiations = 0
-                for rewritten_rule in lpopt_rule_dictionary.keys():
-                    tmp_approximate_non_rewritten_rules = ApproximateGeneratedSotaRules(None, lpopt_rule_dictionary[rewritten_rule],
+            if self.heuristic_strategy_used == HeuristicAlgorithm.DATASTRUCTURE:
+                if rule_dictionary[lpopt_rule].in_lpopt_rules is False:
+                    approximate_non_rewritten_rules = ApproximateGeneratedSotaRules(None, rule_dictionary[lpopt_rule],
                         alternative_global_number_terms=alternative_global_number_terms,
                         alternative_adjusted_tuples_per_arity=alternative_adjusted_tuples)
-                    tmp_approximate_non_rewritten_rule_instantiations = tmp_approximate_non_rewritten_rules.approximate_sota_size()
+                    approximate_non_rewritten_rule_instantiations = approximate_non_rewritten_rules.approximate_sota_size()
 
-                    approximate_rewritten_rule_instantiations += tmp_approximate_non_rewritten_rule_instantiations
-            else: # in_lpopt_rules is True (so use lpopt anyway):
-                # USE LPOPT if in #program lpopt.
-                approximate_rewritten_rule_instantiations = -1
-                approximate_non_rewritten_rule_instantiations = 0
+                    approximate_rewritten_rule_instantiations = 0
+                    for rewritten_rule in lpopt_rule_dictionary.keys():
+                        tmp_approximate_non_rewritten_rules = ApproximateGeneratedSotaRules(None, lpopt_rule_dictionary[rewritten_rule],
+                            alternative_global_number_terms=alternative_global_number_terms,
+                            alternative_adjusted_tuples_per_arity=alternative_adjusted_tuples)
+                        tmp_approximate_non_rewritten_rule_instantiations = tmp_approximate_non_rewritten_rules.approximate_sota_size()
 
-            if approximate_rewritten_rule_instantiations < approximate_non_rewritten_rule_instantiations:
-                # Then use Lpopt rewriting
+                        approximate_rewritten_rule_instantiations += tmp_approximate_non_rewritten_rule_instantiations
+                else: # in_lpopt_rules is True (so use lpopt anyway):
+                    # USE LPOPT if in #program lpopt.
+                    approximate_rewritten_rule_instantiations = -1
+                    approximate_non_rewritten_rule_instantiations = 0
+
+                if approximate_rewritten_rule_instantiations < approximate_non_rewritten_rule_instantiations:
+                    # Then use Lpopt rewriting
+                    use_lpopt_for_rules_string += lpopt_non_rewritten_rules_string + "\n"
+                    lpopt_used = True
+
+                else:
+                    # Use rule directly:
+                    do_not_use_lpopt_for_rules_string += lpopt_non_rewritten_rules_string + "\n"
+            else:
+                # IF ONLY STRUCTURAL HEURISTIC, USE LPOPT:
                 use_lpopt_for_rules_string += lpopt_non_rewritten_rules_string + "\n"
                 lpopt_used = True
-
-            else:
-                # Use rule directly:
-                do_not_use_lpopt_for_rules_string += lpopt_non_rewritten_rules_string + "\n"
         
         if lpopt_used is True:
             if self.enable_logging is True:

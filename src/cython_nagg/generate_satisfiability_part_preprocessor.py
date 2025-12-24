@@ -270,7 +270,7 @@ class GenerateSatisfiabilityPartPreprocessor:
 
                 full_string_template = "\n" + full_string_template
                 printf_(full_string_template.encode("ascii"))
-
+        
         for variable in variable_domain:
             saturation_string_list = []
             for domain_value in variable_domain[variable]:

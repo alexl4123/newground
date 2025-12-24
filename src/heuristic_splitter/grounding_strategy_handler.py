@@ -38,6 +38,7 @@ from nagg.aggregate_strategies.aggregate_mode import AggregateMode
 from nagg.cyclic_strategy import CyclicStrategy
 from nagg.grounding_modes import GroundingModes
 from nagg.foundedness_strategy import FoundednessStrategy
+
 from heuristic_splitter.domain_inferer import DomainInferer
 
 from heuristic_splitter.enums.grounding_strategy import GroundingStrategy
@@ -45,6 +46,7 @@ from heuristic_splitter.enums.sota_grounder import SotaGrounder
 from heuristic_splitter.enums.output import Output
 from heuristic_splitter.enums.cyclic_strategy import CyclicStrategy
 from heuristic_splitter.enums.foundedness_strategy import FoundednessStrategy
+from heuristic_splitter.enums.heuristic_algorithm import HeuristicAlgorithm
 
 from heuristic_splitter.program.string_asp_program import StringASPProgram
 from heuristic_splitter.program.smodels_asp_program import SmodelsASPProgram
@@ -83,6 +85,7 @@ class GroundingStrategyHandler:
         output_printer = None, enable_logging = False, logging_class: LoggingClass = None,
         output_type: Output = None, cdnl_data_structure: CDNLDataStructure = None, ground_and_solve=False,
         cyclic_strategy_used=CyclicStrategy.USE_SOTA, foundedness_strategy_used = FoundednessStrategy.HEURISTIC,
+        heuristic_strategy_used = HeuristicAlgorithm.DATASTRUCTURE,
         sota_grounder_path = "./"
         ):
 
@@ -93,6 +96,7 @@ class GroundingStrategyHandler:
         self.ground_and_solve = ground_and_solve
         self.cyclic_strategy_used = cyclic_strategy_used
         self.foundedness_strategy_used = foundedness_strategy_used
+        self.heuristic_strategy_used = heuristic_strategy_used
         self.sota_grounder_path = sota_grounder_path
 
         self.output_type = output_type
@@ -141,23 +145,26 @@ class GroundingStrategyHandler:
 
             program_input = self.grounded_program.get_string() + "\n" + sota_rules_string + "\n" + show_statements
 
-            if self.output_type == Output.DEFAULT_GROUNDER or self.output_type == Output.BENCHMARK:
-                if self.sota_grounder == SotaGrounder.GRINGO:
-                    final_string = self.start_sota_grounder(program_input, mode="standard")
-                    #final_string += show_statements
+            if grounding_strategy_enum == GroundingStrategy.FULL:
+                if self.output_type == Output.DEFAULT_GROUNDER or self.output_type == Output.BENCHMARK:
+                    
+                    if self.sota_grounder == SotaGrounder.GRINGO:
+                        final_string = self.start_sota_grounder(program_input, mode="standard")
+                        #final_string += show_statements
+                    else:
+                        final_string = self.start_sota_grounder(program_input, mode="standard")
+
+                elif False: # self.output_type == Output.STRING:
+                    final_string = self.start_sota_grounder(program_input, mode="smodels")
+                    self.grounded_program = SmodelsASPProgram(self.grd_call)
+                    self.grounded_program.preprocess_smodels_program(final_string, domain_transformer)
+                    gringo_string = self.grounded_program.get_string(insert_flags=True)
                 else:
-                    final_string = self.start_sota_grounder(program_input, mode="standard")
-
-            elif False: # self.output_type == Output.STRING:
-                final_string = self.start_sota_grounder(program_input, mode="smodels")
-                self.grounded_program = SmodelsASPProgram(self.grd_call)
-                self.grounded_program.preprocess_smodels_program(final_string, domain_transformer)
-                gringo_string = self.grounded_program.get_string(insert_flags=True)
-
-        else:
-            if self.output_type == Output.DEFAULT_GROUNDER:
-                final_string = self.start_sota_grounder(program_input)
-            final_string = self.grounded_program.get_string()
+                    if self.output_type == Output.DEFAULT_GROUNDER:
+                        final_string = self.start_sota_grounder(program_input)
+                    final_string = self.grounded_program.get_string()
+            else:
+                final_string = program_input
 
         if self.debug_mode is True:
             print("--- FINAL ---") 
@@ -238,23 +245,36 @@ class GroundingStrategyHandler:
                         elif self.foundedness_strategy_used == FoundednessStrategy.SATURATION or (is_non_tight_bdg_part and self.cyclic_strategy_used==CyclicStrategy.UNFOUND_SET):
                             tmp_bdg_new_found_rules.append(bdg_rule)
                         else: # Heuristic:
-                            methods_approximations = []
-                            str_rule = str(rule)
-                            self.add_approximate_generated_ground_rules_for_non_ground_rule(domain_transformer,
-                                rule, str_rule, methods_approximations)
-                            methods_approximations.sort(key = lambda x : x[0])
-                            used_method = None
-                            for _, tmp_method_used, _ in methods_approximations:
-                                if "BDG" in tmp_method_used:
-                                    used_method = tmp_method_used
-                                    break
+                            if self.heuristic_strategy_used == HeuristicAlgorithm.DATASTRUCTURE:
+                                methods_approximations = []
+                                str_rule = str(rule)
+                                self.add_approximate_generated_ground_rules_for_non_ground_rule(domain_transformer,
+                                    rule, str_rule, methods_approximations)
+                                methods_approximations.sort(key = lambda x : x[0])
+                                used_method = None
+                                for _, tmp_method_used, _ in methods_approximations:
+                                    if "BDG" in tmp_method_used:
+                                        used_method = tmp_method_used
+                                        break
+                            else:
+                                used_method = "BDG_OLD"
 
                             if used_method == "BDG_OLD":
                                 tmp_bdg_old_found_rules.append(bdg_rule)
                             else:
                                 tmp_bdg_new_found_rules.append(bdg_rule)
                     else:
-                        approx_number_rules, used_method, rule_str = self.get_best_method_by_approximated_rule_count(domain_transformer, rule)
+
+                        if self.heuristic_strategy_used == HeuristicAlgorithm.DATASTRUCTURE:
+                            approx_number_rules, used_method, rule_str = self.get_best_method_by_approximated_rule_count(domain_transformer, rule)
+                        else:
+                            fast_found_worst_case = max(rule.max_variables_in_head + 1,rule.max_variables_in_body)
+                            old_bdg_worst_case = rule.max_variables_in_head + rule.max_variables_in_body
+
+                            if fast_found_worst_case < old_bdg_worst_case:
+                                used_method = "FASTFOUND"
+                            else:
+                                used_method = "BDG_OLD"
 
                         if used_method == "SOTA":
                             sota_rules.append(bdg_rule)
